@@ -232,5 +232,55 @@ exports['mongotree'] = {
 				test.done();
 			});
 		});
+	},
+	'should be able to get all ancestors' : function( test ) {
+		test.expect(3);
+		MongoClient.connect(dsn, function(err, db) {
+			var collection = db.collection(collection_name);
+			async.waterfall([
+				function(callback){
+					mongotree.addTree('products/cameras/accessories', collection, function(err, tree2) {
+						callback(err);
+					});
+				},
+				function(callback){
+					mongotree.getAncestors('products/cameras/accessories', collection, function(err, ancestors) {
+						callback(err, ancestors);
+					});
+				}
+			],
+			function (err, ancestors) {
+				test.equal(ancestors.length, 2);
+				test.equal(ancestors[0]._id, 'products');
+				test.equal(ancestors[1]._id, 'products/cameras');
+				db.close();
+				test.done();
+			});
+		});
+	},
+	'should be able to get all decendants' : function( test ) {
+		test.expect(3);
+		MongoClient.connect(dsn, function(err, db) {
+			var collection = db.collection(collection_name);
+			async.waterfall([
+				function(callback){
+					mongotree.addTree('products/cameras/accessories', collection, function(err, tree2) {
+						callback(err);
+					});
+				},
+				function(callback){
+					mongotree.getDecendants('products', collection, function(err, decendants) {
+						callback(err, decendants);
+					});
+				}
+			],
+			function (err, decendants) {
+				test.equal(decendants.length, 2);
+				test.equal(decendants[0]._id, 'products/cameras');
+				test.equal(decendants[1]._id, 'products/cameras/accessories');
+				db.close();
+				test.done();
+			});
+		});
 	}
 };
