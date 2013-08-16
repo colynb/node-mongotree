@@ -41,11 +41,9 @@ exports['mongotree'] = {
 	},
 	tearDown: function(callback) {
 		MongoClient.connect(dsn, function(err, db) {
-			db.dropCollection(collection_name, function(err, done){
-				db.dropDatabase(function(err, done){
-					db.close();
-					callback();
-				});
+			db.dropDatabase(function(err, done){
+				db.close();
+				callback();
 			});
 		});
 	},
