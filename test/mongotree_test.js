@@ -66,9 +66,9 @@ exports['mongotree'] = {
 		// Add a tree with nodes containing custom params
 		MongoClient.connect(dsn, function(err, db) {
 			var collection = db.collection(collection_name);
-			var path = 'Products / Cameras / Camera Accessories',
-				expected_id = 'products/cameras/camera-accessories',
-				expected_name = 'Camera Accessories';
+			var path = 'Products / Cameras / Cameras & Accessories',
+				expected_id = 'products/cameras/cameras-accessories',
+				expected_name = 'Cameras & Accessories';
 
 			mongotree.addTree(path, collection, function(err, tree) {
 				db.close();
@@ -77,6 +77,13 @@ exports['mongotree'] = {
 				test.done();
 			});
 		});
+	},
+	'should support tokenized strings': function(test) {
+		test.expect(3);
+		test.equal(mongotree.tokenize('Cameras & Accessories'), 'cameras-accessories');
+		test.equal(mongotree.tokenize('Bikes, Helmets, & Accessories'), 'bikes-helmets-accessories');
+		test.equal(mongotree.tokenize('Kids\' Toys'), 'kids-toys');
+		test.done();
 	},
 	'tree should have nodes with custom params': function(test) {
 		test.expect(1);
