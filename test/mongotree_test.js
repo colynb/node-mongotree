@@ -49,40 +49,112 @@ exports['mongotree'] = {
 			});
 		});
 	},
-	'tree should have length of 2': function(test) {
+	'tree should have 2 nodes': function(test) {
 		test.expect(1);
-		// tests here
+
+		// Add a tree with nodes containing custom params
 		MongoClient.connect(dsn, function(err, db) {
-			var collection = db.collection(uuid);
-			mongotree.addTree('some/path/child', collection, function(err, tree) {
-				db.dropCollection(uuid, function(err, done){
-					db.close();
-					test.equal(tree.length, 3);
-					test.done();
-				});
+			var collection = db.collection(collection_name);
+			var date = new Date();
+			var params = {
+				path: 'some/path/child',
+				created: date
+			};
+			mongotree.addTree(params, collection, function(err, tree) {
+				db.close();
+				test.equal(tree.length, 3);
+				test.done();
 			});
 		});
 	},
-	'tree should have length of 1': function(test) {
+	'tree should have nodes with custom params': function(test) {
 		test.expect(1);
-		// tests here
+
+		// Add a tree with nodes containing custom params
 		MongoClient.connect(dsn, function(err, db) {
-			var collection = db.collection(uuid);
+			var collection = db.collection(collection_name);
+			var date = new Date();
+			var params = {
+				path: 'some/path/child',
+				created: date
+			};
+			mongotree.addTree(params, collection, function(err, tree) {
+				db.close();
+				test.equal(tree[0].created, date);
+				test.done();
+			});
+		});
+	},
+	'tree should have 1 node': function(test) {
+		test.expect(1);
+		
+		// Add a tree by string only
+		MongoClient.connect(dsn, function(err, db) {
+			var collection = db.collection(collection_name);
 			mongotree.addTree('some', collection, function(err, tree) {
-				db.dropCollection(uuid, function(err, done){
-					db.close();
-					test.equal(tree.length, 1);
-					test.done();
-				});
+				db.close();
+				test.equal(tree.length, 1);
+				test.done();
 			});
 		});
 	},
-	'parent should have 2 children': function(test) {
+	'root node should have no parent': function(test) {
 		test.expect(1);
-		// tests here
+		
+		// Add a tree by string only
+		MongoClient.connect(dsn, function(err, db) {
+			var collection = db.collection(collection_name);
+			async.waterfall([
+				function(callback){
+					mongotree.addTree('some/path', collection, function(err, tree) {
+						callback(err);
+					});
+				},
+				function(callback){
+					mongotree.getParent('some', collection, function(err, parent) {
+						callback(err, parent);
+					});
+				}
+			],
+			function (err, parent) {
+				test.equal(parent, null);
+				db.close();
+				test.done();
+			});
+		});
+	},
+	'child node should have a parent': function(test) {
+		test.expect(1);
+		
+		// Add a tree by string only
+		MongoClient.connect(dsn, function(err, db) {
+			var collection = db.collection(collection_name);
+			async.waterfall([
+				function(callback){
+					mongotree.addTree('some/path', collection, function(err, tree) {
+						callback(err);
+					});
+				},
+				function(callback){
+					mongotree.getParent('some/path', collection, function(err, parent) {
+						callback(err, parent);
+					});
+				}
+			],
+			function (err, parent) {
+				test.equal(parent['_id'], 'some');
+				db.close();
+				test.done();
+			});
+		});
+	},
+	'parent node should have 2 children': function(test) {
+		test.expect(1);
+		
+		// Add a couple trees then get children
 		MongoClient.connect(dsn, function(err, db) {
 
-			var collection = db.collection(uuid);
+			var collection = db.collection(collection_name);
 			async.waterfall([
 				function(callback){
 					mongotree.addTree('some/path', collection, function(err, tree) {
@@ -101,20 +173,19 @@ exports['mongotree'] = {
 				}
 			],
 			function (err, children) {
-				db.dropCollection(uuid, function(err, done){
-					test.equal(children.length, 2);
-					db.close();
-					test.done();
-				});  
+				test.equal(children.length, 2);
+				db.close();
+				test.done();
 			});
 		});
 	},
 	'node should have 2 siblings': function(test) {
 		test.expect(1);
-		// tests here
+		
+		// Add a couple trees then get siblings
 		MongoClient.connect(dsn, function(err, db) {
 
-			var collection = db.collection(uuid);
+			var collection = db.collection(collection_name);
 			async.waterfall([
 				function(callback){
 					mongotree.addTree('some/path', collection, function(err, tree) {
@@ -138,11 +209,9 @@ exports['mongotree'] = {
 				}
 			],
 			function (err, siblings) {
-				db.dropCollection(uuid, function(err, done){
-					test.equal(siblings.length, 2);
-					db.close();
-					test.done();
-				});  
+				test.equal(siblings.length, 2);
+				db.close();
+				test.done();
 			});
 		});
 	}
