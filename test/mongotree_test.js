@@ -47,20 +47,33 @@ exports['mongotree'] = {
 			});
 		});
 	},
-	'tree should have 2 nodes': function(test) {
+	'tree should have 3 nodes': function(test) {
 		test.expect(1);
 
 		// Add a tree with nodes containing custom params
 		MongoClient.connect(dsn, function(err, db) {
 			var collection = db.collection(collection_name);
-			var date = new Date();
-			var params = {
-				path: 'some/path/child',
-				created: date
-			};
-			mongotree.addTree(params, collection, function(err, tree) {
+			mongotree.addTree('products/cameras/accessories', collection, function(err, tree) {
 				db.close();
 				test.equal(tree.length, 3);
+				test.done();
+			});
+		});
+	},
+	'tree should support friendly path names': function(test) {
+		test.expect(2);
+
+		// Add a tree with nodes containing custom params
+		MongoClient.connect(dsn, function(err, db) {
+			var collection = db.collection(collection_name);
+			var path = 'Products / Cameras / Camera Accessories',
+				expected_id = 'products/cameras/camera-accessories',
+				expected_name = 'Camera Accessories';
+
+			mongotree.addTree(path, collection, function(err, tree) {
+				db.close();
+				test.equal(tree[2]._id, expected_id);
+				test.equal(tree[2].name, expected_name);
 				test.done();
 			});
 		});
@@ -73,7 +86,7 @@ exports['mongotree'] = {
 			var collection = db.collection(collection_name);
 			var date = new Date();
 			var params = {
-				path: 'some/path/child',
+				path: 'products/cameras/accessories',
 				created: date
 			};
 			mongotree.addTree(params, collection, function(err, tree) {
@@ -89,7 +102,7 @@ exports['mongotree'] = {
 		// Add a tree by string only
 		MongoClient.connect(dsn, function(err, db) {
 			var collection = db.collection(collection_name);
-			mongotree.addTree('some', collection, function(err, tree) {
+			mongotree.addTree('products', collection, function(err, tree) {
 				db.close();
 				test.equal(tree.length, 1);
 				test.done();
@@ -104,12 +117,12 @@ exports['mongotree'] = {
 			var collection = db.collection(collection_name);
 			async.waterfall([
 				function(callback){
-					mongotree.addTree('some/path', collection, function(err, tree) {
+					mongotree.addTree('products/cameras', collection, function(err, tree) {
 						callback(err);
 					});
 				},
 				function(callback){
-					mongotree.getParent('some', collection, function(err, parent) {
+					mongotree.getParent('products', collection, function(err, parent) {
 						callback(err, parent);
 					});
 				}
@@ -129,18 +142,18 @@ exports['mongotree'] = {
 			var collection = db.collection(collection_name);
 			async.waterfall([
 				function(callback){
-					mongotree.addTree('some/path', collection, function(err, tree) {
+					mongotree.addTree('products/cameras', collection, function(err, tree) {
 						callback(err);
 					});
 				},
 				function(callback){
-					mongotree.getParent('some/path', collection, function(err, parent) {
+					mongotree.getParent('products/cameras', collection, function(err, parent) {
 						callback(err, parent);
 					});
 				}
 			],
 			function (err, parent) {
-				test.equal(parent['_id'], 'some');
+				test.equal(parent['_id'], 'products');
 				db.close();
 				test.done();
 			});
@@ -155,17 +168,17 @@ exports['mongotree'] = {
 			var collection = db.collection(collection_name);
 			async.waterfall([
 				function(callback){
-					mongotree.addTree('some/path', collection, function(err, tree) {
+					mongotree.addTree('products/cameras', collection, function(err, tree) {
 						callback(err);
 					});
 				},
 				function(callback){
-					mongotree.addTree('some/path2', collection, function(err, tree2) {
+					mongotree.addTree('products/laptops', collection, function(err, tree2) {
 						callback(err);
 					});
 				},
 				function(callback){
-					mongotree.getChildren('some', collection, function(err, children){
+					mongotree.getChildren('products', collection, function(err, children){
 						callback(err, children);
 					});
 				}
@@ -186,22 +199,22 @@ exports['mongotree'] = {
 			var collection = db.collection(collection_name);
 			async.waterfall([
 				function(callback){
-					mongotree.addTree('some/path', collection, function(err, tree) {
+					mongotree.addTree('products/laptops', collection, function(err, tree) {
 						callback(err);
 					});
 				},
 				function(callback){
-					mongotree.addTree('some/path2', collection, function(err, tree2) {
+					mongotree.addTree('products/cameras', collection, function(err, tree2) {
 						callback(err);
 					});
 				},
 				function(callback){
-					mongotree.addTree('some/path3', collection, function(err, tree3) {
+					mongotree.addTree('products/cellphones', collection, function(err, tree3) {
 						callback(err);
 					});
 				},
 				function(callback){
-					mongotree.getSiblings('some/path', collection, function(err, siblings){
+					mongotree.getSiblings('products/laptops', collection, function(err, siblings){
 						callback(err, siblings);
 					});
 				}
