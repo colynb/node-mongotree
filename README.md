@@ -72,3 +72,29 @@ mongotree.addTree('Products / Cameras / Camera Accessories', collection, functio
     name: 'Camera Accessories',
     parent: 'products/cameras' } ]
 ```
+
+Get ancestors
+
+```javascript
+mongotree.getAncestors('products/cameras/accessories', collection, function(err, tree) {
+	console.log(tree);
+});
+
+// outputs
+[ { _id: 'products', name: 'products', parent: '' },
+  { _id: 'products/cameras', name: 'cameras', parent: 'products' } ]
+```
+
+Get decendants
+
+```javascript
+mongotree.getDecendants('products', collection, function(err, tree) {
+	console.log(tree);
+});
+
+// outputs
+[ { _id: 'products/cameras', name: 'cameras', parent: 'products' },
+  { _id: 'products/cameras/accessories',
+    name: 'accessories',
+    parent: 'products/cameras' } ]
+```
