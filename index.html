@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="mongotree : Manage tree structures in MongoDB" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>mongotree</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/colynb/node-mongotree">View on GitHub</a>
+
+          <h1 id="project_title">mongotree</h1>
+          <h2 id="project_tagline">Manage tree structures in MongoDB</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/colynb/node-mongotree/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/colynb/node-mongotree/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="mongotree" class="anchor" href="#mongotree"><span class="octicon octicon-link"></span></a>mongotree</h1>
+
+<p>Manage tree structures in MongoDB</p>
+
+<h2>
+<a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting Started</h2>
+
+<p>Install the module with: <code>npm install mongotree</code></p>
+
+<p>Create a default tree</p>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">mongotree</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'mongotree'</span><span class="p">),</span>
+    <span class="nx">MongoClient</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'mongodb'</span><span class="p">).</span><span class="nx">MongoClient</span><span class="p">,</span>
+    <span class="nx">dsn</span> <span class="o">=</span> <span class="s1">'mongodb://localhost:27017/my-database'</span><span class="p">;</span>
+
+<span class="c1">// Create a new tree structure in a mongodb collection</span>
+<span class="nx">MongoClient</span><span class="p">.</span><span class="nx">connect</span><span class="p">(</span><span class="nx">dsn</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">db</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">mongotree</span><span class="p">.</span><span class="nx">addTree</span><span class="p">(</span><span class="s1">'products/cameras/accessories'</span><span class="p">,</span> <span class="nx">db</span><span class="p">.</span><span class="nx">collection</span><span class="p">(</span><span class="s1">'my-collection'</span><span class="p">),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">tree</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">tree</span><span class="p">);</span>
+        <span class="nx">db</span><span class="p">.</span><span class="nx">close</span><span class="p">();</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+
+<span class="c1">// outputs</span>
+<span class="p">[</span> <span class="p">{</span> <span class="nx">_id</span><span class="o">:</span> <span class="s1">'products'</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">'products'</span><span class="p">,</span> <span class="nx">parent</span><span class="o">:</span> <span class="s1">''</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">_id</span><span class="o">:</span> <span class="s1">'products/cameras'</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">'cameras'</span><span class="p">,</span> <span class="nx">parent</span><span class="o">:</span> <span class="s1">'products'</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">_id</span><span class="o">:</span> <span class="s1">'products/cameras/accessories'</span><span class="p">,</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">'accessories'</span><span class="p">,</span>
+    <span class="nx">parent</span><span class="o">:</span> <span class="s1">'products/cameras'</span> <span class="p">}</span> <span class="p">]</span>
+
+</pre></div>
+
+<p>Create a tree with custom params for nodes</p>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">path</span><span class="o">:</span> <span class="s1">'products/cameras/accessories'</span><span class="p">,</span>
+    <span class="nx">created</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">()</span>
+<span class="p">};</span>
+<span class="nx">mongotree</span><span class="p">.</span><span class="nx">addTree</span><span class="p">(</span><span class="nx">params</span><span class="p">,</span> <span class="nx">db</span><span class="p">.</span><span class="nx">collection</span><span class="p">(</span><span class="s1">'my-collection'</span><span class="p">),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">tree</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">tree</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// outputs</span>
+<span class="p">[</span> <span class="p">{</span> <span class="nx">_id</span><span class="o">:</span> <span class="s1">'products'</span><span class="p">,</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">'products'</span><span class="p">,</span>
+    <span class="nx">parent</span><span class="o">:</span> <span class="s1">''</span><span class="p">,</span>
+    <span class="nx">created</span><span class="o">:</span> <span class="nx">Fri</span> <span class="nx">Aug</span> <span class="mi">16</span> <span class="mi">2013</span> <span class="mi">09</span><span class="o">:</span><span class="mi">41</span><span class="o">:</span><span class="mi">44</span> <span class="nx">GMT</span><span class="o">-</span><span class="mi">0700</span> <span class="p">(</span><span class="nx">MST</span><span class="p">)</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">_id</span><span class="o">:</span> <span class="s1">'products/cameras'</span><span class="p">,</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">'cameras'</span><span class="p">,</span>
+    <span class="nx">parent</span><span class="o">:</span> <span class="s1">'products'</span><span class="p">,</span>
+    <span class="nx">created</span><span class="o">:</span> <span class="nx">Fri</span> <span class="nx">Aug</span> <span class="mi">16</span> <span class="mi">2013</span> <span class="mi">09</span><span class="o">:</span><span class="mi">41</span><span class="o">:</span><span class="mi">44</span> <span class="nx">GMT</span><span class="o">-</span><span class="mi">0700</span> <span class="p">(</span><span class="nx">MST</span><span class="p">)</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">_id</span><span class="o">:</span> <span class="s1">'products/cameras/accessories'</span><span class="p">,</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">'accessories'</span><span class="p">,</span>
+    <span class="nx">parent</span><span class="o">:</span> <span class="s1">'products/cameras'</span><span class="p">,</span>
+    <span class="nx">created</span><span class="o">:</span> <span class="nx">Fri</span> <span class="nx">Aug</span> <span class="mi">16</span> <span class="mi">2013</span> <span class="mi">09</span><span class="o">:</span><span class="mi">41</span><span class="o">:</span><span class="mi">44</span> <span class="nx">GMT</span><span class="o">-</span><span class="mi">0700</span> <span class="p">(</span><span class="nx">MST</span><span class="p">)</span> <span class="p">}</span> <span class="p">]</span>
+</pre></div>
+
+<p>Create a tree with friendly path names</p>
+
+<div class="highlight"><pre><span class="nx">mongotree</span><span class="p">.</span><span class="nx">addTree</span><span class="p">(</span><span class="s1">'Products / Cameras / Camera Accessories'</span><span class="p">,</span> <span class="nx">collection</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">tree</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">tree</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// outputs</span>
+<span class="p">[</span> <span class="p">{</span> <span class="nx">_id</span><span class="o">:</span> <span class="s1">'products'</span><span class="p">,</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">'Products'</span><span class="p">,</span>
+    <span class="nx">parent</span><span class="o">:</span> <span class="s1">''</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">_id</span><span class="o">:</span> <span class="s1">'products/cameras'</span><span class="p">,</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">'Cameras'</span><span class="p">,</span>
+    <span class="nx">parent</span><span class="o">:</span> <span class="s1">'products'</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">_id</span><span class="o">:</span> <span class="s1">'products/cameras/camera-accessories'</span><span class="p">,</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">'Camera Accessories'</span><span class="p">,</span>
+    <span class="nx">parent</span><span class="o">:</span> <span class="s1">'products/cameras'</span> <span class="p">}</span> <span class="p">]</span>
+</pre></div>
+
+<p>Get ancestors</p>
+
+<div class="highlight"><pre><span class="nx">mongotree</span><span class="p">.</span><span class="nx">getAncestors</span><span class="p">(</span><span class="s1">'products/cameras/accessories'</span><span class="p">,</span> <span class="nx">collection</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">tree</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">tree</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// outputs</span>
+<span class="p">[</span> <span class="p">{</span> <span class="nx">_id</span><span class="o">:</span> <span class="s1">'products'</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">'products'</span><span class="p">,</span> <span class="nx">parent</span><span class="o">:</span> <span class="s1">''</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">_id</span><span class="o">:</span> <span class="s1">'products/cameras'</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">'cameras'</span><span class="p">,</span> <span class="nx">parent</span><span class="o">:</span> <span class="s1">'products'</span> <span class="p">}</span> <span class="p">]</span>
+</pre></div>
+
+<p>Get decendants</p>
+
+<div class="highlight"><pre><span class="nx">mongotree</span><span class="p">.</span><span class="nx">getDecendants</span><span class="p">(</span><span class="s1">'products'</span><span class="p">,</span> <span class="nx">collection</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">tree</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">tree</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// outputs</span>
+<span class="p">[</span> <span class="p">{</span> <span class="nx">_id</span><span class="o">:</span> <span class="s1">'products/cameras'</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">'cameras'</span><span class="p">,</span> <span class="nx">parent</span><span class="o">:</span> <span class="s1">'products'</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">_id</span><span class="o">:</span> <span class="s1">'products/cameras/accessories'</span><span class="p">,</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">'accessories'</span><span class="p">,</span>
+    <span class="nx">parent</span><span class="o">:</span> <span class="s1">'products/cameras'</span> <span class="p">}</span> <span class="p">]</span>
+</pre></div>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">mongotree maintained by <a href="https://github.com/colynb">colynb</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
